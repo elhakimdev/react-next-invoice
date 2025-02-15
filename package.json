@@ -13,9 +13,12 @@
     "includedScripts": []
   },
   "dependencies": {
+    "@base-ui-components/react": "1.0.0-alpha.6",
+    "clsx": "2.1.1",
     "next": "~15.1.4",
     "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react-dom": "18.3.1",
+    "react-input-mask": "3.0.0-alpha.2"
   },
   "devDependencies": {
     "@eslint/compat": "^1.1.1",
@@ -38,6 +41,7 @@
     "@types/node": "18.16.9",
     "@types/react": "18.3.1",
     "@types/react-dom": "18.3.0",
+    "@types/react-input-mask": "^3.0.6",
     "autoprefixer": "10.4.13",
     "babel-jest": "^29.7.0",
     "eslint": "^9.8.0",
