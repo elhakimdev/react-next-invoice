@@ -9,7 +9,6 @@ export async function GET(req: Request) {
 
   const db = await getDB();
   let invoices = db.data.invoices;
-  console.log(invoices, db, db.data);
 
   if (statusFilter) {
     invoices = invoices.filter((invoice) => invoice.status === statusFilter);
@@ -34,6 +33,8 @@ export async function POST(req: Request) {
     number: body.number,
     amount: body.amount,
     status: body.status,
+    createdDate: new Date().toISOString(), // Current timestamp in ISO format
+    updatedDate: new Date().toISOString(), // Initially the same as createdDate
   };
 
   db.data.invoices.push(newInvoice);

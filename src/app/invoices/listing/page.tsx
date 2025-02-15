@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 
 import { AppPageTitle } from "src/components/app-page-title"
+import { Datatable } from "src/components/datatable/datatable";
 import { Invoice } from "src/lib/database/connection";
+import { InvoiceColumns } from "../columns";
 import { formatDate } from "src/utils/formatters/date-formatter";
 
 export default function ListInvoices() {
@@ -33,81 +35,14 @@ export default function ListInvoices() {
         isLoading ? (
           <Loading />
         ) : (
-          <Datatable data={data}/>
+          <Datatable data={data} columns={InvoiceColumns}/>
         )
       }
     </div>
   );
 }
 
-const Datatable = ({data}: {data: Invoice[]}) => {
-  return (
-    <div className="bg-white w-[1000px] min-h-[500px] max-h-[500px] relative overflow-x-auto overflow-y-scroll sm:rounded-lg rounded-md shadow-md border-gray-200 border flex flex-col">    
-    <table className="w-full text-sm text-left rtl:text-right text-gray-500">
-      <thead className="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0 z-10 shadow-md shadow-md border-b border-gray-200">
-          <tr className="">
-              <th scope="col" className="p-4">
-                  <div className="flex items-center">
-                      <input id="checkbox-all-search" type="checkbox" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
-                      <label htmlFor="checkbox-all-search" className="sr-only">checkbox</label>
-                  </div>
-              </th>
-              <th scope="col" className="px-6 py-5">
-                  Invoice No
-              </th>
-              <th scope="col" className="px-6 py-5">
-                  Due Date
-              </th>
-              <th scope="col" className="px-6 py-5">
-                  Status
-              </th>
-              <th scope="col" className="px-6 py-5">
-                  Amount
-              </th>
-              <th scope="col" className="px-6 py-5">
-                  Actions
-              </th>
-          </tr>
-      </thead>
-      <tbody>
-        {(data?.map((d, i) => {
-          return (
-            <tr className="border-b border-gray-200 hover:bg-gray-50" key={d.id}>
-                <td className="w-4 p-4">
-                    <div className="flex items-center">
-                        <input 
-                          id={"checkbox-table-search-" + d.id } 
-                          type="checkbox" 
-                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" 
-                        />
-                        <label htmlFor={"checkbox-table-search-" + d.id} className="sr-only">checkbox</label>
-                    </div>
-                </td>
-                <td scope="row" className="px-6 py-4 font-medium whitespace-nowrap flex flex-col">
-                    <span className="text-gray-900">{ d.name }</span>
-                    <span className="text-gray-400">{ d.number }</span>
-                </td>
-                <td className="px-6 py-4">
-                    { formatDate(d.date) }
-                </td>
-                <td className="px-6 py-4">
-                    { d.status }
-                </td>
-                <td className="px-6 py-4">
-                    { d.amount }
-                </td>
-                <td className="flex items-center px-6 py-4">
-                    <a href="#" className="font-medium text-blue-600 hover:underline">Edit</a>
-                    <a href="#" className="font-medium text-red-600 hover:underline ms-3">Remove</a>
-                </td>
-            </tr>
-          )
-        }))}
-      </tbody>
-    </table>
-  </div>
-  )
-}
+
 const Loading = () => {
   return (
     <div className="bg-white w-[1000px] min-h-[500px] max-h-[500px] relative overflow-x-auto overflow-y-scroll sm:rounded-lg rounded-md shadow-md border-gray-200 border flex flex-col items-center justify-center">

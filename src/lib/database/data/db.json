@@ -2,36 +2,34 @@
   "users": [],
   "invoices": [
     {
-      "id": "2526f5bf-24da-47eb-81f3-932aa7196803",
-      "name": "Invoice01Hakim",
-      "date": "21/01/2025",
-      "number": "INV/12/12/1111/1111111111-01",
-      "amount": "Rp. 100.000.000,00",
-      "status": "pending"
+      "id": "b3e2b2d3-3a46-45f3-bc63-15a10b0cb1cf",
+      "name": "John Doe",
+      "date": "15/02/2025",
+      "number": "INV/25/02/2025/1234567890-01",
+      "amount": "Rp. 1.250.500,75",
+      "status": "pending",
+      "createdDate": "2025-02-01T12:00:00Z",
+      "updatedDate": "2025-02-14T15:30:00Z"
     },
     {
-      "id": "5a989573-e8fd-480c-a37c-ab16498b6e14",
-      "name": "Invoice01Dea",
-      "date": "21/07/2023",
-      "number": "INV/12/12/1111/1111111111-03",
-      "amount": "Rp. 140.000.000,00",
-      "status": "unpaid"
+      "id": "f918ce5b-1b91-4c67-93f1-5b2308fd8a38",
+      "name": "Jane Smith",
+      "date": "10/02/2025",
+      "number": "INV/25/01/2025/9876543210-02",
+      "amount": "Rp. 500.000,00",
+      "status": "paid",
+      "createdDate": "2025-01-05T08:45:00Z",
+      "updatedDate": "2025-01-09T14:20:00Z"
     },
     {
-      "id": "3c0050d5-37dc-4507-91e8-61f9b2b36e4f",
-      "name": "MNUPCCFO050004MTFU",
-      "date": "21/03/2025",
-      "number": "INV/01/01/0100/0000000000-01",
-      "amount": "Rp. 100.000.000,00",
-      "status": "pending"
-    },
-    {
-      "id": "5b3444f5-5fc6-485b-9975-a6a14d06b975",
-      "name": "MNUPCCFO050004MTFU",
-      "date": "20/23/2025",
-      "number": "INV/01/01/0100/0000000000-02",
-      "amount": "Rp. 100.111.111,11",
-      "status": "pending"
+      "id": "9df432f4-129f-4fc5-a4f2-5b95e4a83a44",
+      "name": "Michael Johnson",
+      "date": "18/02/2025",
+      "number": "INV/24/12/2024/5678901234-03",
+      "amount": "Rp. 12.750.000,00",
+      "status": "unpaid",
+      "createdDate": "2024-12-01T10:15:00Z",
+      "updatedDate": "2024-12-04T16:45:00Z"
     }
   ]
 }

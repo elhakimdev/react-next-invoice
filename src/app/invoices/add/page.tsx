@@ -18,7 +18,7 @@ import ToastMessage from "src/components/others/toast-message";
 import { addInvoice } from "src/services/invoices/add-invoice";
 import { invoiceStatusOptions } from "src/constants/invoice-status-options";
 
-export enum AvailableStatus {
+enum AvailableStatus {
   Pending,
   Paid,
   Unpaid

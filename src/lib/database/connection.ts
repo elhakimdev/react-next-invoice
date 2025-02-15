@@ -11,6 +11,8 @@ export interface Invoice {
   number: string,
   amount: string|number,
   status: StatusOptionsVal,
+  createdDate: string,
+  updatedDate: string,
 }
 // Define database schema
 export type Data = {
@@ -37,7 +39,7 @@ const db = new Low<Data>(adapter, defaultData);
 export const getDB = async () => {
   await db.read(); // Load database
 
-  if (!db.data || Object.keys(db.data).length === 0) {
+  if (!db.data || Object.keys(db.data).length === 0 || Object.keys(db.data.invoices).length === 0) {
     console.log('🔧 Database is empty. Initializing default data...');
     db.data = defaultData;
     await db.write();

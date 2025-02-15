@@ -85,3 +85,4 @@ And join the Nx community:
 ![Add invoice page](image-1.png)
 ![Validation](image-2.png)
 ![Rich Form Media](image-3.png)
+![Table component Generic](image-4.png)
