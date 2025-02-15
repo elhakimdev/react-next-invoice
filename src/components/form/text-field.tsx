@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { FocusEvent, forwardRef, useState } from "react";
+import { ElementRef, FocusEvent, forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { applyMask, extractRawValue } from "src/utils/masking/apply-mask";
 
 import { BaseUIEvent } from "node_modules/@base-ui-components/react/esm/utils/types";
@@ -9,12 +10,56 @@ import { Field } from "@base-ui-components/react";
 import clsx from "clsx";
 
 export type FieldControlValue = string | number | readonly string[] | unknown | undefined;
+export type FieldControlRef = {
+  focus: () => void;
+  blur: () => void;
+  clear: () => void;
+  isValid: () => boolean;
+  isDirty: () => boolean;
+  isTouched: () => boolean;
+  getValue: () => string;
+  root: React.ElementRef<typeof Field.Root>;
+  control: React.ElementRef<typeof Field.Control>;
+  label: React.ElementRef<typeof Field.Label>;
+  error: React.ElementRef<typeof Field.Error>;
+}
 
-const TextField = forwardRef<HTMLInputElement, CommonFieldProps & { [key: string]: unknown }>(
+
+const TextField = forwardRef<FieldControlRef, CommonFieldProps & { [key: string]: unknown }>(
   ({ id, type, label, name, required, placeholder, value, onValueChange, onBlur, validationMode, rules, mask, ...props }, ref) => {
     
+    // State
     const [error, setError] = useState<string | null>(null);
     const [maskedValue, setMaskedValue] = useState(value ? String(value) : "");
+    const [isDirty, setIsDirty] = useState(false);
+    const [isTouched, setIsTouched] = useState(false);
+    
+    // Refs to expose actual component types
+    const rootRef = useRef<React.ElementRef<typeof Field.Root>>(null);
+    const controlRef = useRef<React.ElementRef<typeof Field.Control>>(null);
+    const labelRef = useRef<React.ElementRef<typeof Field.Label>>(null);
+    const errorRef = useRef<React.ElementRef<typeof Field.Error>>(null);
+
+    // Expose composition as internal state
+    useImperativeHandle(ref, () => ({
+      focus: () => controlRef.current?.focus(),
+      blur: () => controlRef.current?.blur(),
+      clear: () => {
+        setIsDirty(false);
+        setIsTouched(false);
+        setMaskedValue("");
+        setError(null);
+        onValueChange?.("", new Event("clear"));
+      },
+      isValid: () => (isDirty || isTouched) && !error,
+      isDirty: () => isDirty,
+      isTouched: () => isTouched,
+      getValue: () => maskedValue,
+      root: rootRef.current!,
+      control: controlRef.current!,
+      label: labelRef.current!,
+      error: errorRef.current!,
+    }));
 
     let errorMessage: string | null = null;
     
@@ -57,6 +102,7 @@ const TextField = forwardRef<HTMLInputElement, CommonFieldProps & { [key: string
       const valueToValidate = extractRawValue(rawValue, mask);
 
       validate(valueToValidate);
+      setIsDirty(true);
       setMaskedValue(maskedValue);
       onValueChange?.(maskedValue, event);
 
@@ -70,12 +116,14 @@ const TextField = forwardRef<HTMLInputElement, CommonFieldProps & { [key: string
     };
 
     const handleOnBlurValue = (e: BaseUIEvent<FocusEvent<HTMLInputElement, Element>>) => {
+      setIsTouched(true);
       validate(e.target.value);
       onBlur?.(e);
     }
     
     return (
       <Field.Root
+        ref={rootRef}
         name={name}
         id={`${id}-field-root`}
         {...props}
@@ -88,6 +136,7 @@ const TextField = forwardRef<HTMLInputElement, CommonFieldProps & { [key: string
         validationMode={validationMode ?? "onChange"}
       >
         <Field.Label
+          ref={labelRef}
           id={`${id}-field-label`}
           className="text-sm font-medium text-gray-700 transition-all data-[disabled]:text-gray-400"
         >
@@ -95,7 +144,7 @@ const TextField = forwardRef<HTMLInputElement, CommonFieldProps & { [key: string
         </Field.Label>
 
         <Field.Control
-          ref={ref}
+          ref={controlRef}
           id={`${id}-field-control`}
           type={type}
           required={required}
@@ -130,6 +179,7 @@ const TextField = forwardRef<HTMLInputElement, CommonFieldProps & { [key: string
         {/* Smooth Error Transition */}
         <div className="relative min-h-[20px] overflow-hidden">
           <Field.Error
+            ref={errorRef}
             id={`${id}-field-error`}
             className={clsx(
               "absolute left-0 top-0 text-sm text-red-600 transition-all duration-50 ease-in-out",

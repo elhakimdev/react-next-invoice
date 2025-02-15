@@ -1,0 +1,37 @@
+{
+  "users": [],
+  "invoices": [
+    {
+      "id": "2526f5bf-24da-47eb-81f3-932aa7196803",
+      "name": "Invoice01Hakim",
+      "date": "21/01/2025",
+      "number": "INV/12/12/1111/1111111111-01",
+      "amount": "Rp. 100.000.000,00",
+      "status": "pending"
+    },
+    {
+      "id": "5a989573-e8fd-480c-a37c-ab16498b6e14",
+      "name": "Invoice01Dea",
+      "date": "21/07/2023",
+      "number": "INV/12/12/1111/1111111111-03",
+      "amount": "Rp. 140.000.000,00",
+      "status": "unpaid"
+    },
+    {
+      "id": "3c0050d5-37dc-4507-91e8-61f9b2b36e4f",
+      "name": "MNUPCCFO050004MTFU",
+      "date": "21/03/2025",
+      "number": "INV/01/01/0100/0000000000-01",
+      "amount": "Rp. 100.000.000,00",
+      "status": "pending"
+    },
+    {
+      "id": "5b3444f5-5fc6-485b-9975-a6a14d06b975",
+      "name": "MNUPCCFO050004MTFU",
+      "date": "20/23/2025",
+      "number": "INV/01/01/0100/0000000000-02",
+      "amount": "Rp. 100.111.111,11",
+      "status": "pending"
+    }
+  ]
+}

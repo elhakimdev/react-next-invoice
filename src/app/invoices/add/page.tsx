@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { useRef, useState } from "react";
+import { MouseEvent, useEffect, useRef, useState } from "react";
+import TextField, { FieldControlRef } from "src/components/form/text-field";
 
 import { AppPageTitle } from "src/components/app-page-title";
 import { ArrowIcon } from "src/components/icons/arrow-icon";
@@ -11,7 +14,8 @@ import { Field } from '@base-ui-components/react/field';
 import { Fieldset } from '@base-ui-components/react/fieldset';
 import { InvoiceStatus } from "src/interfaces/invoice-status";
 import { Select } from "@base-ui-components/react";
-import TextField from "src/components/form/text-field";
+import ToastMessage from "src/components/others/toast-message";
+import { addInvoice } from "src/services/invoices/add-invoice";
 import { invoiceStatusOptions } from "src/constants/invoice-status-options";
 
 export enum AvailableStatus {
@@ -27,20 +31,34 @@ export interface InvoiceRequestForm {
   date: string,
   number: string,
   amount: string|number,
-  phoneNumber: string|number,
   status: StatusOptionsVal,
 }
 
 export default function AddInvoice() { 
 
   const [availableOptions] = useState<InvoiceStatus[]>([...invoiceStatusOptions]);
-
   const [newInvoice, setNewInvoice] = useState<Partial<InvoiceRequestForm>>({});
+  const [isValid, setIsValid] = useState<boolean>(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isFieldValid, setIsFieldValid] = useState({
+    name: false,
+    number: false,
+    date: false,
+    amount: false,
+  });
+  const [toast, setToast] = useState<{ type: "success" | "error"; title: string, message: string; visible: boolean }>({
+    type: "success",
+    title: "",
+    message: "",
+    visible: false,
+  });
 
-  const nameInputRef = useRef<HTMLInputElement>(null);
-  const numberInputRef = useRef<HTMLInputElement>(null);
-  const dateInputRef = useRef<HTMLInputElement>(null);
-
+  const nameInputRef = useRef<FieldControlRef>(null);
+  const numberInputRef = useRef<FieldControlRef>(null);
+  const dateInputRef = useRef<FieldControlRef>(null); 
+  const amountInputRef = useRef<FieldControlRef>(null); 
+  
   const handleChange = (value: unknown, e: Event) => {
     const { name } = (e as unknown as React.ChangeEvent<HTMLInputElement>).target;
     setNewInvoice(prev => ({ ...prev, [name]: value }));
@@ -48,6 +66,50 @@ export default function AddInvoice() {
 
   const handleStatusChange = (value: StatusOptionsVal) => {
     setNewInvoice(prev => ({ ...prev, "status": value }));
+  };
+
+  useEffect(() => {
+    if (!isMounted) {
+      setIsMounted(true);
+      return;
+    }
+  
+    setIsFieldValid((prev) => {
+      const updatedFields = {
+        ...prev,
+        "name": nameInputRef.current?.isValid() as boolean,
+        "number": numberInputRef.current?.isValid() as boolean,
+        "date": dateInputRef.current?.isValid() as boolean,
+        "amount": amountInputRef.current?.isValid() as boolean,
+      };
+      setIsValid(Object.values(updatedFields).every(Boolean));
+  
+      return updatedFields;
+    });
+  
+  }, [isMounted, newInvoice]);
+
+  const handleOnClickAddInvoice = async (e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) =>  {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      await addInvoice(newInvoice);
+      showSuccess();
+    } catch (error) {
+      showError();
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  const showSuccess = () => {
+    setToast({ type: "success", title: "Invoice added successfully!", message: "You can view and manage your invoice in the 'My Invoices' section.", visible: true });
+    setTimeout(() => setToast((prev) => ({ ...prev, visible: false })), 3000);
+  };
+
+  const showError = () => {
+    setToast({ type: "error", title:"", message: "Failed to add invoice. Try again later!", visible: true });
+    setTimeout(() => setToast((prev) => ({ ...prev, visible: false })), 3000);
   };
   
   return (
@@ -103,6 +165,7 @@ export default function AddInvoice() {
             name="amount"
             label="Amount (Rp.)"
             type="text"
+            ref={amountInputRef}
             placeholder="Rp. 999.999.999,99"
             mask="Rp. 999.999.999,99"
             required={true}
@@ -155,15 +218,23 @@ export default function AddInvoice() {
           <button 
             className={`bg-[#3C50E0] text-white rounded-sm w-[259px] h-[50px] p-[13px] px-[30px] py-[13px] hover:cursor-pointer 
               disabled:bg-gray-200 disabled:text-gray-900 disabled:cursor-not-allowed`}
-              disabled={true}
-              onClick={() => alert("Button clicked!")
-                
-            }
+              disabled={!isValid || isSaving}
+              
+              onClick={(e) => handleOnClickAddInvoice(e)}
           >
-            + Add Invoice
+            {isSaving ? 'Saving...' : '+ Add Invoice'} 
           </button>
         </div>
       </div>
+      
+      {/* Toaster */}
+      <ToastMessage 
+        type={toast.type} 
+        title={toast.title}
+        message={toast.message} 
+        visible={toast.visible} 
+        onClose={() => setToast((prev) => ({ ...prev, visible: false }))} 
+      />
     </div>
   );
 }
