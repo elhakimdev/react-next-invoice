@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import {
   ColumnDef,
   ColumnFiltersColumn,
+  FilterFnOption,
   OnChangeFn,
   PaginationState,
   SortingState,
@@ -19,31 +21,33 @@ import {
   DatatablePagination,
   DatatablePaginationRef,
 } from './datatable-pagination';
-import {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-} from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 
 import DatatableSorting from './datatable-sorting';
 
 export interface ColumnFilter {
-  id: string,
-  value: unknown
+  id: string;
+  value: unknown;
 }
 
 export type ColumnFiltersState = ColumnFilter[];
+
+export interface GlobalFilterTableState {
+  globalFilter: any;
+}
 
 export interface DatatableProps<T> {
   data: T[];
   columns: ColumnDef<T>[];
   sorting: SortingState;
   pagination: PaginationState;
+  columnFilters: ColumnFiltersState;
+  globalFilter: string;
+  globalFilterFn: FilterFnOption<T> | undefined;
   setSorting: OnChangeFn<SortingState> | undefined;
   setPagination: OnChangeFn<PaginationState> | undefined;
-  columnFilters: ColumnFiltersState;
   setColumnFilters: OnChangeFn<ColumnFiltersState> | undefined;
+  setGlobalFilter: OnChangeFn<string> | undefined;
   onRowSelectionChange?: (selectedRows: T[]) => void; // New prop
 }
 
@@ -58,11 +62,14 @@ function DatatableComponent<T>(
     columns,
     sorting,
     pagination,
+    columnFilters,
+    globalFilter,
     setSorting,
     setPagination,
-    columnFilters,
+    setGlobalFilter,
     setColumnFilters,
-    onRowSelectionChange
+    globalFilterFn,
+    onRowSelectionChange,
   }: DatatableProps<T>,
   ref: React.Ref<DatatableRef<T>>
 ) {
@@ -74,8 +81,10 @@ function DatatableComponent<T>(
     state: {
       sorting,
       pagination,
-      columnFilters
+      columnFilters,
+      globalFilter,
     },
+    globalFilterFn: globalFilterFn,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -83,6 +92,7 @@ function DatatableComponent<T>(
     onSortingChange: setSorting,
     onPaginationChange: setPagination,
     onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
   });
 
   useImperativeHandle(ref, () => ({
@@ -92,13 +102,13 @@ function DatatableComponent<T>(
     paginationLinks: paginationLinksRef.current,
   }));
 
-
   useEffect(() => {
     if (onRowSelectionChange) {
-      onRowSelectionChange(table.getSelectedRowModel().rows.map(row => row.original));
+      onRowSelectionChange(
+        table.getSelectedRowModel().rows.map((row) => row.original)
+      );
     }
   }, [table, table.getState().rowSelection]); // ✅ Track row selection changes
-  
 
   return (
     <div>

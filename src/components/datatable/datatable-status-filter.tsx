@@ -10,7 +10,7 @@ import { ChevronUpDownIcon } from '../icons/chevron-up-down-icon';
 export interface FilterOption {
   id: string;
   value: string;
-  text: string
+  text: string;
 }
 
 export interface DatatableStatusFilterProps {
@@ -47,14 +47,18 @@ const DatatableStatusFilter = forwardRef<
           value={selectedFilter}
           onValueChange={handleOnValueChange}
         >
-          <Select.Trigger className="flex h-10 items-center justify-between gap-3 rounded-md bg-white shadow-sm border border-gray-200 pr-3 pl-3.5 text-base text-gray-600 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100">
+          <Select.Trigger className="flex h-10 items-center justify-between gap-3 rounded-md bg-white border border-gray-300 pr-3 pl-3.5 text-base text-gray-600 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100">
             <Select.Value placeholder={value} />
             <Select.Icon className="flex">
               <ChevronUpDownIcon />
             </Select.Icon>
           </Select.Trigger>
           <Select.Portal>
-            <Select.Positioner className="outline-none z-50" side="bottom" sideOffset={8}>
+            <Select.Positioner
+              className="outline-none z-50"
+              side="bottom"
+              sideOffset={8}
+            >
               <Select.Popup className="group origin-top rounded-md bg-[canvas] py-1 text-gray-600 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[side=bottom]:scale-100 data-[side=bottom]:opacity-100 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
                 <Select.Arrow className="top-[-8px]">
                   <ArrowIcon />

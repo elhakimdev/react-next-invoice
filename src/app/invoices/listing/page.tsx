@@ -1,7 +1,14 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 'use client';
 
-import { ColumnFiltersState, Datatable, DatatableRef } from 'src/components/datatable/datatable';
+import {
+  ColumnFiltersState,
+  Datatable,
+  DatatableRef,
+  GlobalFilterTableState,
+} from 'src/components/datatable/datatable';
+import { FilterFnOption, Row, SortingState } from '@tanstack/react-table';
 import { useEffect, useRef, useState } from 'react';
 
 import { AppPageTitle } from 'src/components/app-page-title';
@@ -9,47 +16,51 @@ import DatatableShowEntries from 'src/components/datatable/datatable-show-entrie
 import DatatableStatusFilter from 'src/components/datatable/datatable-status-filter';
 import { Invoice } from 'src/lib/database/connection';
 import { InvoiceColumns } from '../columns';
-import { SortingState } from '@tanstack/react-table';
+import { filter } from 'framer-motion/client';
+import { formatDate } from 'src/utils/formatters/date-formatter';
 import { pageSizeOptions } from 'src/constants/page-size-options';
 
 export type ColumnFilterOptions = {
-  id: string,
-  text: string,
-  value: string,
-}
+  id: string;
+  text: string;
+  value: string;
+};
 export default function ListInvoices() {
   const [data, setData] = useState<Invoice[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 5 });
   const [selectedInvoices, setSelectedInvoices] = useState<Invoice[]>([]);
-  const [columnFiltersOptions, setColumnFiltersOptions] = useState<ColumnFilterOptions[]>([
+  const [globalFilter, setGlobalFilter] = useState<string>('');
+  const [columnFiltersOptions, setColumnFiltersOptions] = useState<
+    ColumnFilterOptions[]
+  >([
     {
       id: 'pending',
       value: 'pending',
-      text: 'Pending'
+      text: 'Pending',
     },
     {
       id: 'paid',
       value: 'paid',
-      text: 'Paid'
+      text: 'Paid',
     },
     {
       id: 'unpaid',
       value: 'unpaid',
-      text: 'Unpaid'
+      text: 'Unpaid',
     },
     {
       id: 'all',
       value: '',
-      text: 'All Status'
+      text: 'All Status',
     },
   ]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([
     {
       id: 'status',
-      value: ''
-    }
+      value: '',
+    },
   ]);
 
   const datatableRef = useRef<DatatableRef<Invoice>>(null);
@@ -67,7 +78,83 @@ export default function ListInvoices() {
     }
   }, [pagination.pageSize, totalPages, pagination.pageIndex]);
 
+  const globalFilterFn: FilterFnOption<Invoice> = (
+    row,
+    columnId,
+    filterValue
+  ) => {
+    switch (columnId) {
+      case 'amount':
+        return normalizeAmountFilter(row, filterValue);
+      case 'date':
+        return normalizeDateFilter(row, filterValue);
+      case 'number':
+        return normalizeInvoiceNumberFilter(row, filterValue);
+
+      default:
+        return false;
+    }
+  };
+
+  const normalizeAmountFilter = (row: Row<Invoice>, filterValue: string) => {
+    // Normalize the filter value by removing non-numeric characters (including currency symbols and formatting)
+    const normalizedFilterValue = filterValue.replace(/[^0-9]/g, '');
+
+    // Normalize the amount value by removing non-numeric characters
+    const normalizedAmountValue = row.original.amount
+      .toString()
+      .replace(/[^0-9]/g, '');
+
+    // Check if the normalized amount value includes the normalized filter value
+    return normalizedAmountValue.includes(normalizedFilterValue);
+  };
+
+  const normalizeDateFilter = (row: Row<Invoice>, filterValue: string) => {
+    const normalizedFilterValue = filterValue.toLowerCase();
+
+    // Format the row date to get components (day, month, year)
+    const rowDateFormatted = formatDate(row.original.date); // Assume this gives 'February 18, 2025'
+
+    // Extract the month, day, and year from the formatted date
+    const dateParts = {
+      day: rowDateFormatted.split(' ')[1], // '18' from 'February 18, 2025'
+      month: rowDateFormatted.split(' ')[0].toLowerCase(), // 'february' from 'February 18, 2025'
+      year: rowDateFormatted.split(' ')[2], // '2025' from 'February 18, 2025'
+    };
+
+    // Normalize the date parts (to lowercase) for easier comparison
+    const { day, month, year } = dateParts;
+
+    // Check if the filter value matches any of the date components
+    if (
+      day.includes(normalizedFilterValue) ||
+      month.includes(normalizedFilterValue) ||
+      year.includes(normalizedFilterValue)
+    ) {
+      return true;
+    }
+
+    // If no match, return false
+    return false;
+  };
+
+  const normalizeInvoiceNumberFilter = (
+    row: Row<Invoice>,
+    filterValue: string
+  ) => {
+    const { name, number } = row.original;
+
+    // Normalize the filterValue and the row data to lowercase for case-insensitive matching
+    const normalizedFilterValue = filterValue.trim().toLowerCase();
+    const normalizedName = name.toLowerCase();
+    const normalizedNumber = number.toLowerCase();
   
+    // Check if either the name or number contains the filter value
+    const match = normalizedName.includes(normalizedFilterValue) || normalizedNumber.includes(normalizedFilterValue);
+  
+    return match;
+  };
+
   useEffect(() => {
     fetch('/api/invoices')
       .then((res) => res.json())
@@ -91,11 +178,43 @@ export default function ListInvoices() {
       ) : (
         <div>
           <div className="flex flex-row justify-between items-center">
-            <h1 className="flex-none items-start text-[#1C2434] text-[26px] font-bold">Invoices</h1>
-            <div className='flex flex-row gap-x-4'>
+            <h1 className="flex-none items-start text-[#1C2434] text-[26px] font-bold">
+              Invoices
+            </h1>
+            <div className="flex flex-row gap-x-4 items-center">
               <div>
-                
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center ps-3 pointer-events-none">
+                    <svg
+                      className="w-4 h-4 text-gray-500 "
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="search"
+                    value={globalFilter}
+                    onChange={(e) => {
+                      setGlobalFilter(e.target.value);
+                    }}
+                    id="default-search"
+                    className="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Search Date, Status, Invoice...."
+                    required
+                  />
+                </div>
               </div>
+
               {/* Select perpage */}
               <div className="">
                 <DatatableStatusFilter
@@ -106,12 +225,13 @@ export default function ListInvoices() {
                     setColumnFilters([
                       {
                         id: 'status',
-                        value: value
-                      }
-                    ])
+                        value: value,
+                      },
+                    ]);
                   }}
                 />
               </div>
+
               {/* Select perpage */}
               <div className="">
                 <DatatableShowEntries
@@ -122,7 +242,7 @@ export default function ListInvoices() {
                     setPagination((prev) => ({
                       ...prev,
                       pageSize: Number(value),
-                      pageIndex: 0, // Aktifkan reset ke halaman pertama jika menginginkan page di reset ke halaman pertama setiap kali ganti show entries.
+                      pageIndex: 0, // Reset to the first page when changing page size
                     }));
                   }}
                 />
@@ -135,12 +255,15 @@ export default function ListInvoices() {
             ref={datatableRef}
             data={data}
             columns={InvoiceColumns}
-            pagination={pagination}
-            setPagination={setPagination}
             sorting={sorting}
-            setSorting={setSorting}
+            pagination={pagination}
             columnFilters={columnFilters}
+            globalFilter={globalFilter}
+            globalFilterFn={globalFilterFn}
+            setSorting={setSorting}
+            setPagination={setPagination}
             setColumnFilters={setColumnFilters}
+            setGlobalFilter={setGlobalFilter}
             onRowSelectionChange={(invoices) => {
               setSelectedInvoices([...invoices]);
             }}

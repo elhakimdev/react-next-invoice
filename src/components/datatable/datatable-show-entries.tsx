@@ -35,7 +35,6 @@ const DatatableShowEntries = forwardRef<
   }));
 
   const handleOnValueChange = (val: number, event?: Event) => {
-    console.log('clicked');
     setSelectedEntries((prev) => val);
     onValueChange?.(val, event);
   };
