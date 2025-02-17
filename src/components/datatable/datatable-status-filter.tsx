@@ -7,49 +7,48 @@ import { ArrowIcon } from '../icons/arrow-icon';
 import { CheckIcon } from '../icons/check-icon';
 import { ChevronUpDownIcon } from '../icons/chevron-up-down-icon';
 
-export interface ShowEntryOption {
-  key: string;
-  value: number;
-  text: string;
+export interface FilterOption {
+  id: string;
+  value: string;
+  text: string
 }
 
-export interface DatatableShowEntriesProps {
-  entries: ShowEntryOption[];
-  value: number;
-  defaultValue: number;
-  onValueChange: ((value: number, event?: Event) => void) | undefined;
+export interface DatatableStatusFilterProps {
+  entries: FilterOption[];
+  value: string;
+  defaultValue: string;
+  onValueChange: ((value: string, event?: Event) => void) | undefined;
 }
 
-export interface DatatableShowEntriesRef {
-  setEntries: (value: number) => void;
+export interface DatatableStatusFilterRef {
+  setFilter: (value: string) => void;
 }
 
-const DatatableShowEntries = forwardRef<
-  DatatableShowEntriesRef,
-  DatatableShowEntriesProps
+const DatatableStatusFilter = forwardRef<
+  DatatableStatusFilterRef,
+  DatatableStatusFilterProps
 >(({ entries, value, defaultValue, onValueChange }, ref) => {
-  const [selectedEntries, setSelectedEntries] = useState(value || defaultValue);
+  const [selectedFilter, setSelectedFilter] = useState(value || defaultValue);
 
   useImperativeHandle(ref, () => ({
-    setEntries: (value: number) => setSelectedEntries(value),
+    setFilter: (value: string) => setSelectedFilter(value),
   }));
 
-  const handleOnValueChange = (val: number, event?: Event) => {
-    console.log('clicked');
-    setSelectedEntries((prev) => val);
+  const handleOnValueChange = (val: string, event?: Event) => {
+    setSelectedFilter((prev) => val);
     onValueChange?.(val, event);
   };
 
   return (
-    <Field.Root name="pageOptions">
+    <Field.Root name="filterOptions">
       <div className="my-[24px]">
         <Select.Root
-          defaultValue={selectedEntries}
-          value={selectedEntries}
+          defaultValue={selectedFilter}
+          value={selectedFilter}
           onValueChange={handleOnValueChange}
         >
           <Select.Trigger className="flex h-10 items-center justify-between gap-3 rounded-md bg-white shadow-sm border border-gray-200 pr-3 pl-3.5 text-base text-gray-600 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100">
-            <Select.Value placeholder="Show entries" />
+            <Select.Value placeholder={value} />
             <Select.Icon className="flex">
               <ChevronUpDownIcon />
             </Select.Icon>
@@ -62,7 +61,7 @@ const DatatableShowEntries = forwardRef<
                 </Select.Arrow>
                 {entries.map((option) => (
                   <Select.Item
-                    key={option.key}
+                    key={option.id}
                     className="grid min-w-[var(--anchor-width)] cursor-pointer grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 outline-none select-none group-data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] group-data-[side=none]:pr-12 group-data-[side=none]:text-base group-data-[side=none]:leading-4 data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-700 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-200"
                     value={option.value}
                   >
@@ -84,6 +83,6 @@ const DatatableShowEntries = forwardRef<
   );
 });
 
-DatatableShowEntries.displayName = 'DatatableShowEntriesComponent';
+DatatableStatusFilter.displayName = 'DatatableStatusFilterComponent';
 
-export default DatatableShowEntries;
+export default DatatableStatusFilter;

@@ -45,6 +45,7 @@ export const InvoiceColumns: ColumnDef<Invoice>[] = [
         />
       );
     },
+    
     cell: ({ row }) => {
       return (
         <TriStateCheckbox
@@ -54,6 +55,17 @@ export const InvoiceColumns: ColumnDef<Invoice>[] = [
         />
       );
     },
+  },
+  {
+    id: 'index',
+    header: '#',
+    cell: ({ row, table }) => {
+      const { pageIndex, pageSize } = table.getState().pagination;
+      const index = pageIndex * pageSize + row.index + 1;
+      return <span className="font-semibold text-gray-700">{index}</span>;
+    },
+    enableSorting: false, // Disable sorting for the index
+    enableGlobalFilter: false, // Exclude from global search
   },
   {
     accessorKey: 'number',
@@ -88,6 +100,12 @@ export const InvoiceColumns: ColumnDef<Invoice>[] = [
     cell: ({ row }) => {
       return <Badge status={row.original.status} />;
     },
+    filterFn: (row, columnId, filterValue) => {
+      const filterVal = filterValue.toLowerCase();
+      const statusVal = String(row.getValue(columnId)).toLowerCase();
+      if(filterVal === '') return ['pending', 'paid', 'unpaid'].includes(statusVal);
+      return statusVal === filterVal;
+    }
   },
   {
     accessorKey: 'amount',

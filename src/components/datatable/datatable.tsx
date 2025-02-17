@@ -3,12 +3,14 @@
 
 import {
   ColumnDef,
+  ColumnFiltersColumn,
   OnChangeFn,
   PaginationState,
   SortingState,
   Table,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
@@ -26,6 +28,13 @@ import {
 
 import DatatableSorting from './datatable-sorting';
 
+export interface ColumnFilter {
+  id: string,
+  value: unknown
+}
+
+export type ColumnFiltersState = ColumnFilter[];
+
 export interface DatatableProps<T> {
   data: T[];
   columns: ColumnDef<T>[];
@@ -33,6 +42,8 @@ export interface DatatableProps<T> {
   pagination: PaginationState;
   setSorting: OnChangeFn<SortingState> | undefined;
   setPagination: OnChangeFn<PaginationState> | undefined;
+  columnFilters: ColumnFiltersState;
+  setColumnFilters: OnChangeFn<ColumnFiltersState> | undefined;
   onRowSelectionChange?: (selectedRows: T[]) => void; // New prop
 }
 
@@ -49,6 +60,8 @@ function DatatableComponent<T>(
     pagination,
     setSorting,
     setPagination,
+    columnFilters,
+    setColumnFilters,
     onRowSelectionChange
   }: DatatableProps<T>,
   ref: React.Ref<DatatableRef<T>>
@@ -61,12 +74,15 @@ function DatatableComponent<T>(
     state: {
       sorting,
       pagination,
+      columnFilters
     },
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(), // needed for client-side filtering
     onSortingChange: setSorting,
     onPaginationChange: setPagination,
+    onColumnFiltersChange: setColumnFilters,
   });
 
   useImperativeHandle(ref, () => ({

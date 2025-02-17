@@ -1,22 +1,56 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 'use client';
 
-import { Datatable, DatatableRef } from 'src/components/datatable/datatable';
+import { ColumnFiltersState, Datatable, DatatableRef } from 'src/components/datatable/datatable';
 import { useEffect, useRef, useState } from 'react';
 
 import { AppPageTitle } from 'src/components/app-page-title';
 import DatatableShowEntries from 'src/components/datatable/datatable-show-entries';
+import DatatableStatusFilter from 'src/components/datatable/datatable-status-filter';
 import { Invoice } from 'src/lib/database/connection';
 import { InvoiceColumns } from '../columns';
 import { SortingState } from '@tanstack/react-table';
 import { pageSizeOptions } from 'src/constants/page-size-options';
 
+export type ColumnFilterOptions = {
+  id: string,
+  text: string,
+  value: string,
+}
 export default function ListInvoices() {
   const [data, setData] = useState<Invoice[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 5 });
   const [selectedInvoices, setSelectedInvoices] = useState<Invoice[]>([]);
+  const [columnFiltersOptions, setColumnFiltersOptions] = useState<ColumnFilterOptions[]>([
+    {
+      id: 'pending',
+      value: 'pending',
+      text: 'Pending'
+    },
+    {
+      id: 'paid',
+      value: 'paid',
+      text: 'Paid'
+    },
+    {
+      id: 'unpaid',
+      value: 'unpaid',
+      text: 'Unpaid'
+    },
+    {
+      id: 'all',
+      value: '',
+      text: 'All Status'
+    },
+  ]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([
+    {
+      id: 'status',
+      value: ''
+    }
+  ]);
 
   const datatableRef = useRef<DatatableRef<Invoice>>(null);
   const totalPages = datatableRef.current?.table?.getPageCount();
@@ -33,8 +67,8 @@ export default function ListInvoices() {
     }
   }, [pagination.pageSize, totalPages, pagination.pageIndex]);
 
+  
   useEffect(() => {
-    setIsLoading(true);
     fetch('/api/invoices')
       .then((res) => res.json())
       .then((data) => {
@@ -52,26 +86,47 @@ export default function ListInvoices() {
 
   return (
     <div>
-      <AppPageTitle title="Invoices" />
       {isLoading ? (
         <Loading />
       ) : (
         <div>
-          <div className="flex flex-row justify-end">
-            {/* Select perpage */}
-            <div className="">
-              <DatatableShowEntries
-                entries={[...pageSizeOptions]}
-                value={5}
-                defaultValue={5}
-                onValueChange={(value) => {
-                  setPagination((prev) => ({
-                    ...prev,
-                    pageSize: Number(value),
-                    pageIndex: 0, // Aktifkan reset ke halaman pertama jika menginginkan page di reset ke halaman pertama setiap kali ganti show entries.
-                  }));
-                }}
-              />
+          <div className="flex flex-row justify-between items-center">
+            <h1 className="flex-none items-start text-[#1C2434] text-[26px] font-bold">Invoices</h1>
+            <div className='flex flex-row gap-x-4'>
+              <div>
+                
+              </div>
+              {/* Select perpage */}
+              <div className="">
+                <DatatableStatusFilter
+                  entries={[...columnFiltersOptions]}
+                  value={''}
+                  defaultValue={''}
+                  onValueChange={(value) => {
+                    setColumnFilters([
+                      {
+                        id: 'status',
+                        value: value
+                      }
+                    ])
+                  }}
+                />
+              </div>
+              {/* Select perpage */}
+              <div className="">
+                <DatatableShowEntries
+                  entries={[...pageSizeOptions]}
+                  value={5}
+                  defaultValue={5}
+                  onValueChange={(value) => {
+                    setPagination((prev) => ({
+                      ...prev,
+                      pageSize: Number(value),
+                      pageIndex: 0, // Aktifkan reset ke halaman pertama jika menginginkan page di reset ke halaman pertama setiap kali ganti show entries.
+                    }));
+                  }}
+                />
+              </div>
             </div>
           </div>
 
@@ -84,6 +139,8 @@ export default function ListInvoices() {
             setPagination={setPagination}
             sorting={sorting}
             setSorting={setSorting}
+            columnFilters={columnFilters}
+            setColumnFilters={setColumnFilters}
             onRowSelectionChange={(invoices) => {
               setSelectedInvoices([...invoices]);
             }}

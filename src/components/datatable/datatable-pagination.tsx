@@ -87,6 +87,7 @@ function DatatablePaginationComponent<T>(
           <span className="font-semibold text-gray-900 px-2">
             {table.getRowCount()}
           </span>
+          entries
         </span>
 
         {/* Navigation for page */}
@@ -187,8 +188,8 @@ function DatatablePaginationComponent<T>(
                       border shadow-sm transition-all duration-300
                       ${
                         page === pagination.pageIndex
-                          ? 'bg-blue-600 text-white border-blue-600 shadow-md hover:bg-blue-500'
-                          : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100 hover:text-gray-900'
+                          ? 'bg-gray-300 text-gray-700 border-gray-300 shadow-md hover:bg-gray-500 hover:text-white'
+                          : 'bg-gray-50 text-gray-500 border-gray-300 hover:bg-gray-100 hover:text-gray-900'
                       }`}
                 >
                   {page + 1}
