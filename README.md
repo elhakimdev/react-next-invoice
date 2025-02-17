@@ -86,3 +86,6 @@ And join the Nx community:
 ![Validation](image-2.png)
 ![Rich Form Media](image-3.png)
 ![Table component Generic](image-4.png)
+![Pending Filters](image-5.png)
+![Per page entries](image-6.png)
+![All filters check and search sync](image-7.png)
